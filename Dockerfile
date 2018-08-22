@@ -87,10 +87,10 @@ RUN buildDeps=' \
  && cd couchdb \
  
  ### install patched rebar upfront...
- git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git src/rebar
- make -C src/rebar
- mv src/rebar/rebar bin/rebar
- make -C src/rebar clean
+ && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git src/rebar \
+ && make -C src/rebar \
+ && mv src/rebar/rebar bin/rebar \
+ && make -C src/rebar clean \
  ###
  
  # Build the release and install into /opt
