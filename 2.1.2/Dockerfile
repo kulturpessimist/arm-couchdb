@@ -103,6 +103,14 @@ RUN buildDeps=' \
  && gpg --batch --verify couchdb.tar.gz.asc couchdb.tar.gz \
  && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
  && cd couchdb \
+ 
+ ### install patched rebar upfront...
+ git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git src/rebar
+ make -C src/rebar
+ mv src/rebar/rebar bin/rebar
+ make -C src/rebar clean
+ ###
+ 
  # Build the release and install into /opt
  && ./configure --disable-docs \
  && make release \
