@@ -97,7 +97,7 @@ RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
  
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
- && ./configure \
+ && ./configure --rebar /bin/rebar \
  && make \
  && make release \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
