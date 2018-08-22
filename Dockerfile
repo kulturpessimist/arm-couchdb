@@ -97,6 +97,7 @@ RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
  
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
+ && rm -rf bin/rebar \
  && ./configure --rebar /bin/rebar \
  && make \
  && make release \
