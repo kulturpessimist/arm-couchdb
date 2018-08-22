@@ -89,14 +89,10 @@ RUN buildDeps=' \
  
  ### install patched rebar upfront...
 RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
- && if [ ! -x "${rootdir}/bin/rebar" ]; then \
-      if [ ! -d "${rootdir}/src/rebar" ]; then \
-          git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git ${rootdir}/src/rebar \
-      fi \
-      make -C ${rootdir}/src/rebar \
-      mv ${rootdir}/src/rebar/rebar ${rootdir}/bin/rebar \
-      make -C ${rootdir}/src/rebar clean \
-  fi
+ && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git ${rootdir}/src/rebar \
+ && make -C ${rootdir}/src/rebar \
+ && mv ${rootdir}/src/rebar/rebar ${rootdir}/bin/rebar \
+ && make -C ${rootdir}/src/rebar clean \
  ###
  
  # Build the release and install into /opt
