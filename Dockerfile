@@ -95,8 +95,8 @@ RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
  && make -C ${rootdir}/src/rebar clean \
  ###
  
- # Build the release and install into /opt
- RUN ./configure --disable-docs \
+ # Build the release and install into /opt --disable-docs
+ RUN ./configure \
  && make release \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
  # Cleanup build detritus
