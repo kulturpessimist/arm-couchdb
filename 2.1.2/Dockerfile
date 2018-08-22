@@ -102,9 +102,16 @@ RUN buildDeps=' \
  && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
  # Acquire CouchDB source code
  && cd /usr/src && mkdir couchdb \
- && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o couchdb.tar.gz \
- && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o couchdb.tar.gz.asc \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o apache-couchdb-$COUCHDB_VERSION.tar.gz \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o apache-couchdb-$COUCHDB_VERSION.tar.gz.asc \
  && gpg --batch --verify couchdb.tar.gz.asc couchdb.tar.gz \
+ 
+ ### instead of failing gpg maybe use sha512 check?
+ && cp apache-couchdb-$COUCHDB_VERSION.tar.gz couchdb.tar.gz \
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
+ && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
+ 
+
  && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
  && cd couchdb \
  
