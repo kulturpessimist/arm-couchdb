@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-FROM resin/rpi-raspbian
-LABEL maintainer="sahil@ole.org,mappuji@ole.org"
+FROM arm64v8/ubuntu:16.04
+LABEL maintainer="con.sume.org@gmail.com"
 
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
@@ -41,11 +41,6 @@ RUN set -ex; \
 	\
 # install gosu
 	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
-	wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4; \
-	gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu; \
-	rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc; \
 	chmod +x /usr/local/bin/gosu; \
 	\
 # check if tini exists
@@ -58,35 +53,14 @@ RUN set -ex; \
 # if not then install tini
 	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
 	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7; \
-	gpg --batch --verify /usr/local/bin/tini.asc /usr/local/bin/tini; \
-	rm -r "$GNUPGHOME" /usr/local/bin/tini.asc; \
 	chmod +x /usr/local/bin/tini; \
 	tini --version; \
 	\
 	fi; \
 	apt-get purge -y --auto-remove wget
 
-# https://www.apache.org/dist/couchdb/KEYS
-ENV GPG_KEYS \
-  15DD4F3B8AACA54740EB78C7B7B7C53943ECCEE1 \
-  1CFBFA43C19B6DF4A0CA3934669C02FFDF3CEBA3 \
-  25BBBAC113C1BFD5AA594A4C9F96B92930380381 \
-  4BFCA2B99BADC6F9F105BEC9C5E32E2D6B065BFB \
-  5D680346FAA3E51B29DBCB681015F68F9DA248BC \
-  7BCCEB868313DDA925DF1805ECA5BCB7BB9656B0 \
-  C3F4DFAEAD621E1C94523AEEC376457E61D50B88 \
-  D2B17F9DA23C0A10991AF2E3D9EE01E47852AEE4 \
-  E0AF0A194D55C84E4A19A801CDB0C0F904F4EE9B \
-  29E4F38113DF707D722A6EF91FE9AF73118F1A7C \
-  2EC788AE3F239FA13E82D215CDE711289384AE37
-RUN set -xe \
-  && for key in $GPG_KEYS; do \
-    gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-  done
 
-ENV COUCHDB_VERSION 2.1.2
+ENV COUCHDB_VERSION 2.2.0
 
 # Download dev dependencies
 RUN buildDeps=' \
@@ -103,15 +77,12 @@ RUN buildDeps=' \
  # Acquire CouchDB source code
  && cd /usr/src && mkdir couchdb \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o apache-couchdb-$COUCHDB_VERSION.tar.gz \
- && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.asc -o apache-couchdb-$COUCHDB_VERSION.tar.gz.asc \
- && gpg --batch --verify couchdb.tar.gz.asc couchdb.tar.gz \
  
  ### instead of failing gpg maybe use sha512 check?
  && cp apache-couchdb-$COUCHDB_VERSION.tar.gz couchdb.tar.gz \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  
-
  && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
  && cd couchdb \
  
