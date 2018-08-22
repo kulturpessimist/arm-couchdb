@@ -85,10 +85,10 @@ RUN buildDeps=' \
  && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  
  && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
- && cd couchdb \
+ && cd couchdb
  
  ### install patched rebar upfront...
-  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
+RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
 
   if [ ! -x "${rootdir}/bin/rebar" ]; then \
       if [ ! -d "${rootdir}/src/rebar" ]; then \
@@ -97,16 +97,12 @@ RUN buildDeps=' \
       make -C ${rootdir}/src/rebar \
       mv ${rootdir}/src/rebar/rebar ${rootdir}/bin/rebar \
       make -C ${rootdir}/src/rebar clean \
-  fi \
+  fi
 
- && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git src/rebar \
- && make -C src/rebar \
- && mv src/rebar/rebar bin/rebar \
- && make -C src/rebar clean \
  ###
  
  # Build the release and install into /opt
- && ./configure --disable-docs \
+ RUN ./configure --disable-docs \
  && make release \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
  # Cleanup build detritus
