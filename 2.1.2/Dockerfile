@@ -49,6 +49,10 @@ RUN set -ex; \
 	chmod +x /usr/local/bin/gosu; \
 	\
 # check if tini exists
+### If you are using Docker 1.13 or greater, Tini is included in Docker itself. 
+### This includes all versions of Docker CE. 
+### To enable Tini, just pass the --init flag to docker run.
+
         if ! type "tini" > /dev/null; then \
         \
 # if not then install tini
