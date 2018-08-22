@@ -92,7 +92,7 @@ RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
  && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git ${rootdir}/src/rebar \
  && make -C ${rootdir}/src/rebar \
  && mv ${rootdir}/src/rebar/rebar ${rootdir}/rebar \
- && make -C ${rootdir}/src/rebar clean \
+ && make -C ${rootdir}/src/rebar clean
  ###
  
  # Build the release and install into /opt --disable-docs
