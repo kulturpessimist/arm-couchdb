@@ -110,7 +110,7 @@ RUN buildDebDeps=' \
   && apt-get purge -y --auto-remove $buildDeps \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
   && mkdir /opt/couchdb/data \
-  && mkdir /opt/couchdb/var/log/ \
+  #&& mkdir /opt/couchdb/var/log/ \
   && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
