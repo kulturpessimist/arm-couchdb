@@ -23,7 +23,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     erlang-reltool \
     haproxy \
     libicu55 \
-    libmozjs185-1.0 \
+    libmozjs185-1.0:armhf \
     openssl \
   && rm -rf /var/lib/apt/lists/*
 
