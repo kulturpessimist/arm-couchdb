@@ -124,6 +124,7 @@ RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args 
 
 WORKDIR /opt/couchdb
 EXPOSE 5984 4369 9100
+VOLUME ["/opt/couchdb/etc/local.d/"]
 VOLUME ["/opt/couchdb/data"]
 VOLUME ["/opt/couchdb/var/log/"]
 
