@@ -111,7 +111,7 @@ RUN buildDebDeps=' \
 	&& cd couchdb-pkg \
 	&& make couch-js-debs \
 	&& dpkg -i js/couch-libmozjs185-*.deb \
-	&& make build-couch $(lsb_release -cs) PLATFORM=$(lsb_release -cs) 
+	&& make build-couch xenial PLATFORM=xenial 
 
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
