@@ -93,7 +93,7 @@ RUN \
  && make -C /usr/src/rebar \
  && rm -rf /usr/src/couchdb/bin/rebar \
  && mv /usr/src/rebar/rebar /usr/src/couchdb/bin/rebar \
- && make -C ${rootdir}/src/rebar clean
+ && make -C /usr/src/rebar clean
  ###
  
  # Build the release and install into /opt --disable-docs
