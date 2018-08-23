@@ -13,6 +13,7 @@
 FROM arm64v8/ubuntu:16.04
 LABEL maintainer="con.sume.org@gmail.com"
 
+ENV COUCHDB_VERSION 2.2.0
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
@@ -31,34 +32,24 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 ENV GOSU_VERSION 1.10
 ENV TINI_VERSION 0.16.1
 RUN set -ex; \
-	\
-	apt-get update; \
-	apt-get install -y --no-install-recommends wget; \
-	rm -rf /var/lib/apt/lists/*; \
-	\
 	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')"; \
-	\
 # install gosu
-	wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch"; \
+	curl -fSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$dpkgArch -o /usr/local/bin/gosu ; \
 	chmod +x /usr/local/bin/gosu; \
-	\
+
 # check if tini exists
 ### If you are using Docker 1.13 or greater, Tini is included in Docker itself. 
 ### This includes all versions of Docker CE. 
 ### To enable Tini, just pass the --init flag to docker run.
 
-        if ! type "tini" > /dev/null; then \
-        \
-# if not then install tini
-	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
-	chmod +x /usr/local/bin/tini; \
-	tini --version; \
-	\
+  if ! type "tini" > /dev/null; then \
+    \
+    # if not then install tini
+	  curl -fSL https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch -o /usr/local/bin/tini ; \
+	  chmod +x /usr/local/bin/tini; \
+	  tini --version; \
+	  \
 	fi; \
-	apt-get purge -y --auto-remove wget
-
-
-ENV COUCHDB_VERSION 2.2.0
 
 # Download dev dependencies
 RUN buildDeps=' \
@@ -72,14 +63,11 @@ RUN buildDeps=' \
     make \
   ' \
  && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
- # Acquire CouchDB source code
+ # Acquire CouchDB source code and check hash
  && cd /usr/src && mkdir couchdb \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o apache-couchdb-$COUCHDB_VERSION.tar.gz \
- 
- ### instead of failing gpg maybe use sha512 check?
- && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
- && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
- 
+ && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \ 
+ && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \ 
  && tar -xzf apache-couchdb-$COUCHDB_VERSION.tar.gz -C couchdb --strip-components=1
  
  ### install patched rebar upfront...
@@ -89,7 +77,6 @@ RUN set -x \
   && rm -rf /usr/src/couchdb/bin/rebar \
   && mv /usr/src/rebar/rebar /usr/src/couchdb/bin/rebar \
   && make -C /usr/src/rebar clean
- ###
 
 ### install special mozjs 1.8.5 ... with help from https://github.com/lag-linaro/couchdb-arm64/blob/master/Dockerfile
 RUN buildDebDeps=' \
@@ -111,7 +98,6 @@ RUN buildDebDeps=' \
 	&& cd couchdb-pkg \
 	&& make couch-js-debs \
 	&& dpkg -i js/couch-libmozjs185-*.deb
-	#&& make build-couch xenial PLATFORM=xenial 
 
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
@@ -120,9 +106,11 @@ RUN buildDebDeps=' \
   && make release \
   && mv /usr/src/couchdb/rel/couchdb /opt/ \
   # Cleanup build detritus
+  && apt-get purge -y --auto-remove $buildDebDeps \
   && apt-get purge -y --auto-remove $buildDeps \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
   && mkdir /opt/couchdb/data \
+  && mkdir /opt/couchdb/var/log/ \
   && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
@@ -132,11 +120,12 @@ COPY vm.args /opt/couchdb/etc/
 COPY ./docker-entrypoint.sh /
 
 # Setup directories and permissions
-RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args
+RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args /opt/couchdb/var/log/
 
 WORKDIR /opt/couchdb
 EXPOSE 5984 4369 9100
 VOLUME ["/opt/couchdb/data"]
+VOLUME ["/opt/couchdb/var/log/"]
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 CMD ["/opt/couchdb/bin/couchdb"]
