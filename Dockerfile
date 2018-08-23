@@ -110,7 +110,7 @@ RUN buildDebDeps=' \
 	&& git clone https://github.com/apache/couchdb-pkg.git \
 	&& cd couchdb-pkg \
 	&& make couch-js-debs \
-	&& dpkg -i js/couch-libmozjs185-*.deb \
+	&& dpkg -i js/couch-libmozjs185-*.deb
 	#&& make build-couch xenial PLATFORM=xenial 
 
  # Build the release and install into /opt --disable-docs
