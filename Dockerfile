@@ -93,7 +93,9 @@ RUN set -x \
 
 ### install special mozjs 1.8.5 ... with help from https://github.com/lag-linaro/couchdb-arm64/blob/master/Dockerfile
 RUN buildDebDeps=' \
+    autotools-dev \
     devscripts \
+    debhelper \
     build-essential \
     libffi-dev \
     libnspr4-dev \
