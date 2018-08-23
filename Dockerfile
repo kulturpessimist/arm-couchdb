@@ -16,7 +16,8 @@ LABEL maintainer="con.sume.org@gmail.com"
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends \
+RUN dpkg --add-architecture armhf \ 
+  && apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     erlang-nox \
