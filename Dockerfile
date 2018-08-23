@@ -49,7 +49,7 @@ RUN set -ex; \
 	  chmod +x /usr/local/bin/tini; \
 	  tini --version; \
 	  \
-	fi; \
+	fi; 
 
 # Download dev dependencies
 RUN buildDeps=' \
