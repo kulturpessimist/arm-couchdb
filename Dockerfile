@@ -16,15 +16,13 @@ LABEL maintainer="con.sume.org@gmail.com"
 # Add CouchDB user account
 RUN groupadd -r couchdb && useradd -d /opt/couchdb -g couchdb couchdb
 
-RUN dpkg --add-architecture armhf \ 
-  && apt-get update -y && apt-get install -y --no-install-recommends \
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     erlang-nox \
     erlang-reltool \
     haproxy \
-    libicu55 \
-    libmozjs185-1.0:armhf \
+    libicu-dev \
     openssl \
   && rm -rf /var/lib/apt/lists/*
 
@@ -71,7 +69,6 @@ RUN buildDeps=' \
     erlang-dev \
     libcurl4-openssl-dev \
     libicu-dev \
-    libmozjs185-dev \
     make \
   ' \
  && apt-get update -y -qq && apt-get install -y --no-install-recommends $buildDeps \
@@ -80,23 +77,29 @@ RUN buildDeps=' \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o apache-couchdb-$COUCHDB_VERSION.tar.gz \
  
  ### instead of failing gpg maybe use sha512 check?
- # && cp apache-couchdb-$COUCHDB_VERSION.tar.gz couchdb.tar.gz \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  
  && tar -xzf apache-couchdb-$COUCHDB_VERSION.tar.gz -C couchdb --strip-components=1
- # && cd couchdb
  
  ### install patched rebar upfront...
-RUN \ 
- # rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
- git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git /usr/src/rebar \
- && make -C /usr/src/rebar \
- && rm -rf /usr/src/couchdb/bin/rebar \
- && mv /usr/src/rebar/rebar /usr/src/couchdb/bin/rebar \
- && make -C /usr/src/rebar clean
+RUN set -x \ 
+  && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git /usr/src/rebar \
+  && make -C /usr/src/rebar \
+  && rm -rf /usr/src/couchdb/bin/rebar \
+  && mv /usr/src/rebar/rebar /usr/src/couchdb/bin/rebar \
+  && make -C /usr/src/rebar clean
  ###
- 
+
+### install special mozjs 1.8.5 ...
+RUN RUN set -x \
+	&& cd /usr/src \
+	&& git clone https://github.com/apache/couchdb-pkg.git \
+	&& cd couchdb-pkg \
+	&& make couch-js-debs \
+	&& dpkg -i js/couch-libmozjs185-*.deb \
+	&& make build-couch $(lsb_release -cs) PLATFORM=$(lsb_release -cs) 
+
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
  # && rm -rf bin/rebar \
