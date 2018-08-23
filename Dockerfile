@@ -52,7 +52,6 @@ RUN set -ex; \
         \
 # if not then install tini
 	wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch"; \
-	wget -O /usr/local/bin/tini.asc "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$dpkgArch.asc"; \
 	chmod +x /usr/local/bin/tini; \
 	tini --version; \
 	\
@@ -80,25 +79,27 @@ RUN buildDeps=' \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz -o apache-couchdb-$COUCHDB_VERSION.tar.gz \
  
  ### instead of failing gpg maybe use sha512 check?
- && cp apache-couchdb-$COUCHDB_VERSION.tar.gz couchdb.tar.gz \
+ # && cp apache-couchdb-$COUCHDB_VERSION.tar.gz couchdb.tar.gz \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  
- && tar -xzf couchdb.tar.gz -C couchdb --strip-components=1 \
- && cd couchdb
+ && tar -xzf apache-couchdb-$COUCHDB_VERSION.tar.gz -C couchdb --strip-components=1 \
+ # && cd couchdb
  
  ### install patched rebar upfront...
-RUN  rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
- && git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git ${rootdir}/src/rebar \
- && make -C ${rootdir}/src/rebar \
- && mv ${rootdir}/src/rebar/rebar ${rootdir}/rebar \
+RUN \ 
+ # rootdir="$(cd "${0%/*}" 2>/dev/null; echo "$PWD")" \
+ git clone --depth 1 --branch 2.6.0-couchdb https://github.com/kulturpessimist/couchdb-rebar.git /usr/src/rebar \
+ && make -C /usr/src/rebar \
+ && rm -rf /usr/src/couchdb/bin/rebar \
+ && mv /usr/src/rebar/rebar /usr/src/couchdb/bin/rebar \
  && make -C ${rootdir}/src/rebar clean
  ###
  
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
- && rm -rf bin/rebar \
- && ./configure --rebar /bin/rebar \
+ # && rm -rf bin/rebar \
+ && ./configure \
  && make \
  && make release \
  && mv /usr/src/couchdb/rel/couchdb /opt/ \
