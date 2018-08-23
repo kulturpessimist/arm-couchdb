@@ -92,8 +92,7 @@ RUN set -x \
  ###
 
 ### install special mozjs 1.8.5 ... with help from https://github.com/lag-linaro/couchdb-arm64/blob/master/Dockerfile
-RUN set -x \
-  buildDebDeps=' \
+RUN buildDebDeps=' \
     devscripts \
     build-essential \
     libffi-dev \
@@ -101,8 +100,9 @@ RUN set -x \
     zip \
     pkg-kde-tools \
     python \
-    pkg-config
+    pkg-config \
   ' \
+  && set -x \
   && apt-get install -y --no-install-recommends $buildDebDeps \
 	&& cd /usr/src \
 	&& git clone https://github.com/apache/couchdb-pkg.git \
