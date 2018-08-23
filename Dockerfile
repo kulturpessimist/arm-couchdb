@@ -83,7 +83,7 @@ RUN buildDeps=' \
  && curl -fSL https://dist.apache.org/repos/dist/release/couchdb/source/$COUCHDB_VERSION/apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 -o apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  && sha512sum --check apache-couchdb-$COUCHDB_VERSION.tar.gz.sha512 \
  
- && tar -xzf apache-couchdb-$COUCHDB_VERSION.tar.gz -C couchdb --strip-components=1 \
+ && tar -xzf apache-couchdb-$COUCHDB_VERSION.tar.gz -C couchdb --strip-components=1
  # && cd couchdb
  
  ### install patched rebar upfront...
