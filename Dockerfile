@@ -93,6 +93,7 @@ RUN set -x \
 
 ### install special mozjs 1.8.5 ... with help from https://github.com/lag-linaro/couchdb-arm64/blob/master/Dockerfile
 RUN set -x \
+  && apt-get install -y --no-install-recommends devscripts	debhelper \
 	&& cd /usr/src \
 	&& git clone https://github.com/apache/couchdb-pkg.git \
 	&& cd couchdb-pkg \
