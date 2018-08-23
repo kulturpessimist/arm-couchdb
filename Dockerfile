@@ -91,8 +91,8 @@ RUN set -x \
   && make -C /usr/src/rebar clean
  ###
 
-### install special mozjs 1.8.5 ...
-RUN RUN set -x \
+### install special mozjs 1.8.5 ... with help from https://github.com/lag-linaro/couchdb-arm64/blob/master/Dockerfile
+RUN set -x \
 	&& cd /usr/src \
 	&& git clone https://github.com/apache/couchdb-pkg.git \
 	&& cd couchdb-pkg \
@@ -102,16 +102,15 @@ RUN RUN set -x \
 
  # Build the release and install into /opt --disable-docs
  RUN cd /usr/src/couchdb \
- # && rm -rf bin/rebar \
- && ./configure \
- && make \
- && make release \
- && mv /usr/src/couchdb/rel/couchdb /opt/ \
- # Cleanup build detritus
- && apt-get purge -y --auto-remove $buildDeps \
- && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
- && mkdir /opt/couchdb/data \
- && chown -R couchdb:couchdb /opt/couchdb
+  && ./configure \
+  && make \
+  && make release \
+  && mv /usr/src/couchdb/rel/couchdb /opt/ \
+  # Cleanup build detritus
+  && apt-get purge -y --auto-remove $buildDeps \
+  && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
+  && mkdir /opt/couchdb/data \
+  && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
 COPY local.ini /opt/couchdb/etc/local.d/
