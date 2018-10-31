@@ -109,8 +109,8 @@ RUN buildDebDeps=' \
   && apt-get purge -y --auto-remove $buildDebDeps \
   && apt-get purge -y --auto-remove $buildDeps \
   && rm -rf /var/lib/apt/lists/* /usr/src/couchdb* \
-  && mkdir /opt/couchdb/data \
-  #&& mkdir /opt/couchdb/var/log/ \
+  && mkdir /opt/couchdb/data/ \
+  && mkdir /opt/couchdb/logs/ \
   && chown -R couchdb:couchdb /opt/couchdb
 
 # Add configuration
@@ -120,13 +120,13 @@ COPY vm.args /opt/couchdb/etc/
 COPY ./docker-entrypoint.sh /
 
 # Setup directories and permissions
-RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args /opt/couchdb/var/log/
+RUN chown -R couchdb:couchdb /opt/couchdb/etc/local.d/ /opt/couchdb/etc/vm.args /opt/couchdb/data/ /opt/couchdb/logs/
 
 WORKDIR /opt/couchdb
 EXPOSE 5984 4369 9100
 VOLUME ["/opt/couchdb/etc/local.d/"]
-VOLUME ["/opt/couchdb/data"]
-VOLUME ["/opt/couchdb/var/log/"]
+VOLUME ["/opt/couchdb/data/"]
+VOLUME ["/opt/couchdb/logs/"]
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 CMD ["/opt/couchdb/bin/couchdb"]
