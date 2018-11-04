@@ -1,11 +1,13 @@
 #!/bin/sh
 
 docker run \
-    -d \
-    -p 5984:5984 \
-    --volume /opt/couchdb/data:/opt/couchdb/data \
-    --volume /opt/couchdb/config:/opt/couchdb/etc/local.d/ \
-    --volume /opt/couchdb/logs:/opt/couchdb/logs/ \
-    --name arm-couch \
-    --env COUCHDB_USER=admin \
-    --env COUCHDB_PASSWORD=password
+  -p 80:5984 \
+  -v couchdb-data:/opt/couchdb/data \
+  -v couchdb-config:/opt/couchdb/etc/local.d \
+  -v couchdb-logs:/opt/couchdb/logs \
+  -e COUCHDB_USER=admin \
+  -e COUCHDB_PASSWORD=password \
+  --restart unless-stopped \
+  -d 3237d7fadeeb
+
+    
